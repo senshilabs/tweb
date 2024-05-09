@@ -1,7 +1,7 @@
+
 // todo : 하트 이미지 변경
 
-// api 1 = claimable
-// api 2 = claim
+
 class AirDropEndpoint {
   private apiEndpoint: string;
 
@@ -9,13 +9,23 @@ class AirDropEndpoint {
     this.apiEndpoint = apiEndpoint;
   }
 
+  public getHMAC() {
+    return JSON.parse(window.sessionStorage.getItem('__telegram__initParams'))['tgWebAppData'];
+  }
+
   public fetchData(): Promise<any> {
     const isProd = true;
+    const hmacToken = this.getHMAC();
 
     if(isProd) {
       return Promise.resolve({success: true});
     } else {
-      return fetch(this.apiEndpoint)
+      return fetch(this.apiEndpoint, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${hmacToken}`
+        }
+      })
       .then(response => response.json())
       .catch(error => {
         throw new Error('Failed to fetch data');
@@ -143,7 +153,6 @@ export class AirdropManager {
     };
   }
 }
-
 
 // 모듈화를 위해 default export 사용
 export default new AirdropManager();
