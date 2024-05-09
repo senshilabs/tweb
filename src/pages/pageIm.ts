@@ -4,6 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
+import airdropManager from '../components/airdrop/airdrop';
 import blurActiveElement from '../helpers/dom/blurActiveElement';
 import loadFonts from '../helpers/dom/loadFonts';
 import I18n from '../lib/langPack';
@@ -29,10 +30,13 @@ const onFirstMount = () => {
 
   return Promise.all([
     import('../lib/appManagers/appDialogsManager'),
+    import('../components/airdrop/airdrop'),
     loadFonts()/* .then(() => new Promise((resolve) => window.requestAnimationFrame(resolve))) */,
     'requestVideoFrameCallback' in HTMLVideoElement.prototype ? Promise.resolve() : import('../helpers/dom/requestVideoFrameCallbackPolyfill')
-  ]).then(([appDialogsManager]) => {
-    appDialogsManager.default.start();
+  ]).then(([appDialogsManager, airdropManager]) => {
+    appDialogsManager.default.start(); // 여기서 마운트되면 로딩하는듯
+    airdropManager.default.init();
+
     setTimeout(() => {
       document.getElementById('auth-pages').remove();
     }, 1e3);

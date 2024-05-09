@@ -4,9 +4,6 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import type CustomEmojiElement from '../lib/customEmoji/element';
-import type {AnimationItemGroup} from './animationIntersector';
-import {CustomEmojiRendererElement} from '../lib/customEmoji/renderer';
 import cancelEvent from '../helpers/dom/cancelEvent';
 import simulateEvent from '../helpers/dom/dispatchEvent';
 import documentFragmentToHTML from '../helpers/dom/documentFragmentToHTML';
@@ -20,12 +17,15 @@ import RichInputHandler, {USING_BOMS} from '../helpers/dom/richInputHandler';
 import selectElementContents from '../helpers/dom/selectElementContents';
 import setInnerHTML, {setDirection} from '../helpers/dom/setInnerHTML';
 import {MessageEntity} from '../layer';
-import {i18n, LangPackKey, _i18n} from '../lib/langPack';
+import type CustomEmojiElement from '../lib/customEmoji/element';
+import {CustomEmojiRendererElement} from '../lib/customEmoji/renderer';
+import {LangPackKey, _i18n, i18n} from '../lib/langPack';
 import {NULL_PEER_ID} from '../lib/mtproto/mtproto_config';
 import mergeEntities from '../lib/richTextProcessor/mergeEntities';
 import parseEntities from '../lib/richTextProcessor/parseEntities';
 import wrapDraftText from '../lib/richTextProcessor/wrapDraftText';
 import {createCustomFiller, insertCustomFillers} from '../lib/richTextProcessor/wrapRichText';
+import type {AnimationItemGroup} from './animationIntersector';
 
 export async function insertRichTextAsHTML(input: HTMLElement, text: string, entities: MessageEntity[], wrappingForPeerId: PeerId) {
   const loadPromises: Promise<any>[] = [];
