@@ -60,5 +60,9 @@
     "vite-plugin-handlebars": "^1.6.0",
     "vite-plugin-solid": "^2.8.0",
     "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "eruda": "^3.0.1",
+    "js-confetti": "^0.12.0"
   }
 }
