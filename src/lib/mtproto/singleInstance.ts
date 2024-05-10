@@ -125,7 +125,8 @@ export class SingleInstance extends EventListenerBase<{
 
     const [curInstance, build = App.build] = await Promise.all([
       sessionStorage.get('xt_instance', false),
-      sessionStorage.get('k_build', false)
+      // sessionStorage.get('k_build', false),
+      undefined
     ]);
 
     if(build > App.build) {
