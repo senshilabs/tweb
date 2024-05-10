@@ -4,7 +4,6 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import airdropManager from '../components/airdrop/airdrop';
 import blurActiveElement from '../helpers/dom/blurActiveElement';
 import loadFonts from '../helpers/dom/loadFonts';
 import I18n from '../lib/langPack';
