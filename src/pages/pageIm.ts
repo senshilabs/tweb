@@ -30,12 +30,14 @@ const onFirstMount = () => {
 
   return Promise.all([
     import('../lib/appManagers/appDialogsManager'),
-    import('../components/airdrop/airdrop'),
+    import('../components/telegramMini/airdrop'),
+    import('../components/telegramMini/dashboard'),
     loadFonts()/* .then(() => new Promise((resolve) => window.requestAnimationFrame(resolve))) */,
     'requestVideoFrameCallback' in HTMLVideoElement.prototype ? Promise.resolve() : import('../helpers/dom/requestVideoFrameCallbackPolyfill')
-  ]).then(([appDialogsManager, airdropManager]) => {
+  ]).then(([appDialogsManager, airdropManager, dashboard]) => {
     appDialogsManager.default.start(); // 여기서 마운트되면 로딩하는듯
     airdropManager.default.init();
+    // dashboard.default.init();
 
     setTimeout(() => {
       document.getElementById('auth-pages').remove();
