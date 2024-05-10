@@ -2,40 +2,54 @@
 // todo : 하트 이미지 변경
 
 
-class AirDropEndpoint {
+class AirDropEndpoint<T> {
   private apiEndpoint: string;
+  private method: 'GET' | 'POST';
 
-  constructor(apiEndpoint: string) {
+  constructor(apiEndpoint: string, method: 'GET' | 'POST' = 'GET') {
     this.apiEndpoint = apiEndpoint;
+    this.method = method;
   }
 
-  public getHMAC() {
+
+  public getHMAC(isProd: boolean) {
     return JSON.parse(window.sessionStorage.getItem('__telegram__initParams'))['tgWebAppData'];
   }
 
-  public fetchData(): Promise<any> {
+  public fetchData(): Promise<T> {
     const isProd = true;
-    const hmacToken = this.getHMAC();
+    const hmacToken = this.getHMAC(isProd);
 
-    if(isProd) {
-      return Promise.resolve({success: true});
-    } else {
-      return fetch(this.apiEndpoint, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `${hmacToken}`
-        }
-      })
-      .then(response => response.json())
-      .catch(error => {
-        throw new Error('Failed to fetch data');
-      });
-    }
+    console.log({hmacToken})
+
+    return fetch(this.apiEndpoint, {
+      method:this.method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${hmacToken}`
+      }
+    })
+    .then(response =>
+        response.ok ? response.json() : Promise.reject(response)
+    )
+    .catch(error => {
+      throw new Error('Failed to fetch data');
+    });
   }
 }
 
-const claimable = new AirDropEndpoint('/claimable');
-const claim = new AirDropEndpoint('/claim');
+type ClaimableApiResponse = {
+    claimable: boolean;
+}
+
+type ClaimApiResponse = {
+    claimable: boolean;
+    earned: number;
+}
+
+const claimableApi = new AirDropEndpoint<ClaimableApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/claimable', 'GET');
+const claimApi = new AirDropEndpoint<ClaimApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/claim', 'POST');
+const me = new AirDropEndpoint('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/me');
 
 export class AirdropManager {
   private airdropLayer: HTMLElement;
@@ -55,29 +69,20 @@ export class AirdropManager {
     }, 10000); // 5분 간격
   }
 
+
   // 서버 API를 호출하여 Airdrop 데이터를 가져옴
   private fetchClaimable() {
-    claimable.fetchData().then(data => {
-      if(data.success) {
-        // alert('Airdrop successfully claimed!');
-        this.createAirdropElement();
-      } else {
-        // alert('Failed to claim airdrop.');
-      }
+    claimableApi.fetchData().then(res => {
+      this.createAirdropElement();
     }).catch(error => {
       console.error('Error claiming airdrop:', error);
-      alert('Error occurred while claiming airdrop.');
     });
   }
 
+
   private onAirdropClick() {
-    claim.fetchData().then(data => {
-      if(data.success) {
-        // todo : UI 업데이트
-      } else {
-        // alert('Failed to claim airdrop.');
-        // 이 때 어케함?
-      }
+    claimApi.fetchData().then(res => {
+      console.log('Airdrop successfully claimed!')
     }).catch(error => {
       console.error('Error claiming airdrop:', error);
       alert('Error occurred while claiming airdrop.');
@@ -152,6 +157,20 @@ export class AirdropManager {
       el.remove();
     };
   }
+}
+
+export class AirdropDashBoard {
+  private airdropLayer: HTMLElement;
+  private airdropElement: HTMLElement;
+
+  // AirdropManager의 초기화 및 필요 리소스 설정
+  public init() {
+    this.airdropLayer = document.getElementById('airdrop-layer') as HTMLElement;
+  }
+
+  //   public open(){
+
+//   }
 }
 
 // 모듈화를 위해 default export 사용
