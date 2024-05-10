@@ -17,7 +17,7 @@ class HmacEndPoint<T> {
   }
 
   public fetchData(): Promise<T> {
-    const isProd = false;
+    const isProd = true;
     const hmacToken = this.getHMAC(isProd);
 
     console.log({hmacToken})
