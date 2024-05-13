@@ -36,7 +36,7 @@ const onFirstMount = () => {
   ]).then(([appDialogsManager, airdropManager, dashboard]) => {
     appDialogsManager.default.start(); // 여기서 마운트되면 로딩하는듯
     airdropManager.default.init();
-    // dashboard.default.init();
+    dashboard.default.init();
 
     setTimeout(() => {
       document.getElementById('auth-pages').remove();

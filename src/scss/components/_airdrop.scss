@@ -9,7 +9,7 @@ body {
   
   @mixin scatter($left) {
     left: 20 + ($left * 10%) + 50 - random(100);
-    @include size(30 + ($left * 15px));
+    @include size(60 + ($left * 15px));
     
     $delay: $left * .9;
     animation: rock 3.5s ease-in-out infinite alternate, drop 15s linear #{$delay}s;
@@ -24,25 +24,25 @@ body {
   .chute {
     position: absolute;
     display: block;
-    background-image: url('https://cdn-icons-png.flaticon.com/512/882/882181.png');
-    background-size: cover;
+    background-image: url('/public/assets/img/chute.png');
+    background-size: contain;
     
-    transform-origin: 50% 25%;
     top: 100%;
+    animation: swing 3.9s ease-in-out infinite alternate;
     
     .load {
       position: absolute;
-      bottom: -60%;
+      bottom: -88.4%;
       display: block;
-      height: 71.6%;
+      height: 100%;
       width: 100%;
-      background-image: url('https://i.imgur.com/zBEqYLD.png');
+      background-image: url('/public/assets/img/mTon.png');
       background-size: cover;
       
       transform-origin: 50% 5%;
-      animation: swing 3.9s ease-in-out infinite alternate;
     }
   }
+
   
   @keyframes rock {
     from { transform: rotate(9deg); }

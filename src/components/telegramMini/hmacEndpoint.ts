@@ -10,17 +10,17 @@ class HmacEndPoint<T> {
   public getHMAC(isProd: boolean) {
     if(!isProd) {
       window.sessionStorage.setItem('__telegram__initParams', JSON.stringify({
-        tgWebAppData:'query_id%3DAAGnipdpAAAAAKeKl2nVK9Jx%26user%3D%257B%2522id%2522%253A1771539111%252C%2522first_name%2522%253A%2522MyungjunChae%2520%257C%2520Senshilabs%2522%252C%2522last_name%2522%253A%2522%2522%252C%2522username%2522%253A%2522MyungjunChae%2522%252C%2522language_code%2522%253A%2522ko%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26auth_date%3D1715324000%26hash%3D0de2d6b187893d2b555c5eed18679cc5dafc4093d2c842f8f2a9814c11b20844&tgWebAppPlatform=macos&tgWebAppThemeParams=%7B%22header_bg_color%22%3A%22%23efeff3%22%2C%22section_header_text_color%22%3A%22%236d6d71%22%2C%22section_bg_color%22%3A%22%23ffffff%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22link_color%22%3A%22%232481cc%22%2C%22secondary_bg_color%22%3A%22%23efeff3%22%2C%22subtitle_text_color%22%3A%22%23999999%22%2C%22destructive_text_color%22%3A%22%23ff3b30%22%2C%22hint_color%22%3A%22%23999999%22%2C%22bg_color%22%3A%22%23ffffff%22%2C%22text_color%22%3A%22%23000000%22%2C%22accent_text_color%22%3A%22%232481cc%22%2C%22button_color%22%3A%22%232481cc%22%7D&tgWebAppVersion=7.2'
+        tgWebAppData:'query_id=AAGnipdpAAAAAKeKl2nNX0c9&user=%7B%22id%22%3A1771539111%2C%22first_name%22%3A%220xono%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22dev_ono_ono%22%2C%22language_code%22%3A%22ko%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1715602968&hash=5b4683dd13529af8eb07e47d134f5d64a295c58af78f919635206da0a9174997'
       } ));
     }
-    return JSON.parse(window.sessionStorage.getItem('__telegram__initParams'))['tgWebAppData'];
+    // return JSON.parse(window.sessionStorage.getItem('__telegram__initParams'))['tgWebAppData'];
+    // @ts-ignore
+    return window.Telegram.WebApp.initData;
   }
 
   public fetchData(): Promise<T> {
     const isProd = true;
     const hmacToken = this.getHMAC(isProd);
-
-    console.log({hmacToken})
 
     return fetch(this.apiEndpoint, {
       method:this.method,
@@ -29,9 +29,10 @@ class HmacEndPoint<T> {
         'Authorization': `${hmacToken}`
       }
     })
-    .then(response =>
-          response.ok ? response.json() : Promise.reject(response)
-    )
+    .then(response =>{
+      console.log({response});
+      return response.ok ? response.json() : Promise.reject(response)
+    })
     .catch(error => {
       throw new Error('Failed to fetch data');
     });

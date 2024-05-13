@@ -151,14 +151,30 @@
         </div>
       </div>
       <div id="airdrop-layer" style="position: absolute; height: 100vh; z-index: 999;"></div>
-      <!-- <div id="dashboard-layer" style="position: absolute; height: 100vh; z-index: 999;"></div> -->
+      <div id="dashboard-layer" style="display:none; position: absolute; width: 100vw; height: 100vh; z-index: 999; background-color: #FAFAFA;"></div>
     </div>
     <div id="stories-viewer"></div>
     <script src="src/index.ts" type="module"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+      var isDashBoard = false;
       Telegram.WebApp.ready();
       Telegram.WebApp.expand();
+
+      Telegram.WebApp.MainButton.show();
+      Telegram.WebApp.MainButton.setParams({
+        text: 'DashBoard',
+      });
+
+      Telegram.WebApp.MainButton.onClick(function () {
+        isDashBoard = !isDashBoard;
+        Telegram.WebApp.MainButton.setParams({
+          text: isDashBoard ? 'Close' : 'DashBoard',
+        });
+        document.getElementById('dashboard-layer').style.display = isDashBoard ? 'block' : 'none';
+      });
+    </script>
+    </script>
     </script>
     <script src="//cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>

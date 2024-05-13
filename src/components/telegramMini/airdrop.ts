@@ -83,27 +83,12 @@ export class AirdropManager {
   private styleAirdropElement(el: HTMLElement) {
     const randomX = Math.floor(Math.random() * (document.documentElement.clientWidth - el.offsetWidth));
     el.style.cssText = `
-            width: 30px;
-            height: 30px;
+            width: 50px;
+            height: 50px;
             position: absolute;
             top: 0;
             left: ${randomX}px;
         `;
-  }
-
-  private createCoinElement() {
-    const coin = document.createElement('div');
-    coin.id = 'coin';
-    coin.style.width = '50px';
-    coin.style.height = '50px';
-    coin.style.borderRadius = '50%';
-    coin.style.backgroundColor = 'gold';
-    coin.style.position = 'absolute';
-
-
-    this.airdropLayer.appendChild(coin);
-
-    return coin;
   }
 
 
