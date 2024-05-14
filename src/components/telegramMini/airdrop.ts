@@ -44,15 +44,13 @@ export class AirdropManager {
 
   private async onAirdropClick() {
     try {
+      this.removeAirdropElement();
       const res = await claimApi.fetchData();
       console.log('Airdrop successfully claimed!');
       confetti.addConfetti();
       await dashboard.updateBalance();
     } catch(error) {
       console.error('Error claiming airdrop:', error);
-      alert('Error occurred while claiming airdrop.');
-    } finally {
-      this.removeAirdropElement();
     }
   }
 
