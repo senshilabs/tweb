@@ -29,7 +29,7 @@ export class AirdropManager {
   private scheduleAirdropFetch() {
     setInterval(() => {
       this.fetchClaimable();
-    }, 10000); // 5분 간격
+    }, 15_000);
   }
 
   // 서버 API를 호출하여 Airdrop 데이터를 가져옴

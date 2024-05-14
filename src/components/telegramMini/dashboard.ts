@@ -443,7 +443,7 @@ export class AirdropDashBoard {
     sendLinkText.classList.add('tm-button-active');
     sendLinkText.addEventListener('click', () => {
       // @ts-ignore
-      const link = `https://t.me/share/url?url=t.me/tele_gram_mini_bot/app?startapp=ref_${window.Telegram.WebApp.initDataUnsafe.user.id}` + encodeURIComponent(`Join TelegramMini through this link and receive 200 mTON! Let's earn together! 🤑`);
+      const link = `https://t.me/share/url?url=t.me/tele_gram_mini_bot/app?startapp=ref_${window.Telegram.WebApp.initDataUnsafe.user.id}` + encodeURIComponent(` Join TelegramMini through this link and receive 200 mTON! Let's earn together! 🤑`);
       window.open(link);
     });
 
