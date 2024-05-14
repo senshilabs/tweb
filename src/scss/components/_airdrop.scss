@@ -7,30 +7,30 @@ body {
     height: $width * 1.1;
   }
   
-  @mixin scatter($left) {
-    left: 20 + ($left * 10%) + 50 - random(100);
-    @include size(60 + ($left * 15px));
+  // @mixin scatter($left) {
+  //   left: 20 + ($left * 10%) + 50 - random(100);
+  //   @include size(60 + ($left * 15px));
     
-    $delay: $left * .9;
-    animation: rock 3.5s ease-in-out infinite alternate, drop 15s linear #{$delay}s;
-  }
+  //   $delay: $left * .9;
+  //   animation: rock 3.5s ease-in-out infinite alternate, drop 15s linear #{$delay}s;
+  // }
   
-  @for $i from 1 through 8 {
-    .chute#{$i} {
-      @include scatter($i);
-    }
-  }
+  // @for $i from 1 through 8 {
+  //   .chute#{$i} {
+  //     @include scatter($i);
+  //   }
+  // }
   
   .chute {
     position: absolute;
     display: block;
     background-image: url('/public/assets/img/chute.png');
     background-size: contain;
-    
     top: 100%;
+    cursor: pointer;
     animation: swing 3.9s ease-in-out infinite alternate;
     
-    .load {
+    .coin {
       position: absolute;
       bottom: -88.4%;
       display: block;
@@ -43,6 +43,43 @@ body {
     }
   }
 
+  .tm-title{
+    color: #000;
+    margin: 0;
+    margin-bottom: 12px;
+  }
+
+  .tm-button {
+    border-radius: 4px;
+    padding: 8px 16px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .tm-button-inactive {
+    @extend .tm-button;
+    background: #D9D9D9;
+    color: #B3B3B3;
+    cursor: not-allowed;
+  }
+
+  .tm-button-active {
+    @extend .tm-button;
+    background: #548DE6;
+    color: #fff;
+    cursor: pointer;
+
+    &:hover {
+      background: #3366CC;
+    }
+
+    &:active {
+      background: #3366CC;
+      transform: translateY(1px);
+    }
+  }
   
   @keyframes rock {
     from { transform: rotate(9deg); }

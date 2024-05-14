@@ -1,8 +1,6 @@
-
-// todo : 하트 이미지 변경
-import JSConfetti from 'js-confetti'
 import HmacEndPoint from './hmacEndpoint';
-const jsConfetti = new JSConfetti()
+import confetti from './confetti';
+import dashboard from './dashboard';
 
 type ClaimableApiResponse = {
     claimable: boolean;
@@ -13,8 +11,8 @@ type ClaimApiResponse = {
     earned: number;
 }
 
-const claimableApi = new HmacEndPoint<ClaimableApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/claimable', 'GET');
-const claimApi = new HmacEndPoint<ClaimApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/claim', 'POST');
+const claimableApi = new HmacEndPoint<ClaimableApiResponse>('/claimable', 'GET');
+const claimApi = new HmacEndPoint<ClaimApiResponse>('/claim', 'POST');
 
 
 export class AirdropManager {
@@ -35,26 +33,27 @@ export class AirdropManager {
   }
 
   // 서버 API를 호출하여 Airdrop 데이터를 가져옴
-  private fetchClaimable() {
-    claimableApi.fetchData().then(res => {
+  private async fetchClaimable() {
+    try {
+      const res = await claimableApi.fetchData();
       this.createAirdropElement();
-    }).catch(error => {
+    } catch(error) {
       console.error('Error claiming airdrop:', error);
-    });
+    }
   }
 
-  private onAirdropClick() {
-    claimApi.fetchData().then(res => {
-      console.log('Airdrop successfully claimed!')
-      jsConfetti . addConfetti ( {
-        emojis : ['💵', '🎁', '💎', '🤑']
-      } )
-    }).catch(error => {
+  private async onAirdropClick() {
+    try {
+      const res = await claimApi.fetchData();
+      console.log('Airdrop successfully claimed!');
+      confetti.addConfetti();
+      await dashboard.updateBalance();
+    } catch(error) {
       console.error('Error claiming airdrop:', error);
       alert('Error occurred while claiming airdrop.');
-    }).finally(() => {
+    } finally {
       this.removeAirdropElement();
-    });
+    }
   }
 
   // Airdrop UI 요소 생성 및 이벤트 핸들링
@@ -62,14 +61,13 @@ export class AirdropManager {
     this.airdropElement = document.createElement('div');
     this.airdropElement.classList.add('chute');
 
-    const load = document.createElement('div');
-    load.classList.add('load');
+    const coin = document.createElement('div');
+    coin.classList.add('coin');
 
-    this.airdropElement.appendChild(load);
+    this.airdropElement.appendChild(coin);
 
     this.airdropElement.addEventListener('click', this.onAirdropClick.bind(this));
 
-    this.styleAirdropElement(this.airdropElement);
     this.animateAirdropElement(this.airdropElement);
     this.airdropLayer.appendChild(this.airdropElement);
   }
@@ -79,30 +77,28 @@ export class AirdropManager {
     this.airdropElement = null;
   }
 
-  // Airdrop 요소 스타일 설정
-  private styleAirdropElement(el: HTMLElement) {
-    const randomX = Math.floor(Math.random() * (document.documentElement.clientWidth - el.offsetWidth));
+  // Airdrop 애니메이션
+  private animateAirdropElement(el: HTMLElement) {
+    function getRandomPosition() {
+      return Math.floor(Math.random() * (document.documentElement.clientWidth * 0.8));
+    }
+    const startX = getRandomPosition();
+    const endX = getRandomPosition();
+
     el.style.cssText = `
             width: 50px;
             height: 50px;
             position: absolute;
             top: 0;
-            left: ${randomX}px;
+            left: ${startX}px;
         `;
-  }
 
-
-  // Airdrop 애니메이션
-  private animateAirdropElement(el: HTMLElement) {
     const animationDuration = 10000; // 10초
-    const verticalDistance = document.documentElement.clientHeight - el.offsetHeight;
-    const maxWidth = document.documentElement.clientWidth - el.offsetWidth;
-    const movementRestriction = 0.35; // 좌우 이동 범위를 최대의 35%로 제한
 
     // 세로 이동 애니메이션 (linear)
     const verticalAnimation = el.animate([
-      {top: '0px'},
-      {top: `${verticalDistance}px`}
+      {top: '-100px'},
+      {top: `${document.documentElement.clientHeight}px`}
     ], {
       duration: animationDuration,
       easing: 'linear',
@@ -111,8 +107,8 @@ export class AirdropManager {
 
     // 좌우 이동 애니메이션 (ease-in-out)
     const horizontalAnimation = el.animate([
-      {left: `${Math.random() * maxWidth * movementRestriction}px`},
-      {left: `${Math.random() * maxWidth * movementRestriction}px`}
+      {left: `${startX}px`},
+      {left: `${endX}px`}
     ], {
       duration: animationDuration,
       easing: 'ease-in-out',
@@ -125,7 +121,6 @@ export class AirdropManager {
     };
   }
 }
-
 
 // 모듈화를 위해 default export 사용
 export default new AirdropManager();

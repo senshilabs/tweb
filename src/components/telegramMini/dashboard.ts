@@ -1,3 +1,4 @@
+import confetti from './confetti';
 import HmacEndPoint from './hmacEndpoint';
 
 type MyInfoApiResponse = {
@@ -9,152 +10,163 @@ type MyInfoApiResponse = {
   Username: string;
 };
 
+type EarlyBirdApiResponse = {
+  claimed: boolean;
+};
+
 type ServerInfoApiResponse = {
   base_earn_points: number;
   earlybird_points: number;
   interval_seconds: number;
 };
-const myInfoApi = new HmacEndPoint<MyInfoApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/me', 'GET');
-const earlyBirdApi = new HmacEndPoint<MyInfoApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/earlybird', 'POST');
-const serverInfoApi = new HmacEndPoint<ServerInfoApiResponse>('https://6iuhvr5pl9.execute-api.us-west-2.amazonaws.com/default/api/server-info', 'GET');
+const myInfoApi = new HmacEndPoint<MyInfoApiResponse>('/me', 'GET');
+const earlyBirdApi = new HmacEndPoint<EarlyBirdApiResponse>('/earlybird', 'POST');
+const serverInfoApi = new HmacEndPoint<ServerInfoApiResponse>('/server-info', 'GET');
 
 export class AirdropDashBoard {
   private dashboardLayer: HTMLElement;
   private dashboardElement: HTMLElement;
-  private balance: number = 0;
-  private earlybirdPoints: number = 0;
 
   // AirdropManager의 초기화 및 필요 리소스 설정
   public init() {
     this.dashboardLayer = document.getElementById('dashboard-layer') as HTMLElement;
-    this.open();
+    this.updateDashboard();
   }
 
-  public open() {
-    myInfoApi.fetchData().then(res => {
-      serverInfoApi.fetchData().then(serverInfo => {
-        console.log({serverInfo});
-        this.earlybirdPoints = serverInfo.earlybird_points;
-        this.createEvent(res.EarlyBirdClaim, serverInfo.earlybird_points);
-      }).catch(error => {
-        console.error('Error fetching server info:', error);
+  public clearDashboard() {
+    this.dashboardLayer.innerHTML = '';
+  }
+
+  public async updateDashboard() {
+    try {
+      this.clearDashboard();
+
+      const myInfo = await myInfoApi.fetchData();
+      const serverInfo = await serverInfoApi.fetchData();
+
+      this.createBalance(myInfo.Balance.Total);
+      this.createEvent(myInfo.EarlyBirdClaim, serverInfo.earlybird_points);
+      this.createInvitation();
+    } catch(error) {
+      console.error('Error updating dashboard:', error);
+    }
+  }
+
+  public async claimEarlyBird() {
+    try {
+      await earlyBirdApi.fetchData();
+      confetti.addConfetti();
+
+
+      this.updateBalance();
+      this.updateClaimButton(false);
+    } catch(error) {
+      console.error('Error claiming airdrop:', error);
+    }
+  }
+
+  public async updateBalance(element: HTMLElement = document.getElementById('tm-balance') as HTMLElement) {
+    try {
+      const myInfo = await myInfoApi.fetchData();
+      element.textContent = myInfo.Balance.Total.toString();
+    } catch(error) {
+      console.error('Error updating balance:', error);
+    }
+  }
+
+  public updateClaimButton(claimable: boolean, earlybirdPoints: number = 0, element: HTMLElement = document.getElementById('tm-claim-btn') as HTMLElement) {
+    if(!claimable) {
+      element.textContent = 'Claimed';
+      element.classList.remove('tm-button-active');
+      element.classList.add('tm-button-inactive');
+    } else {
+      element.textContent = `Claim ${earlybirdPoints} mTon`;
+      element.classList.remove('tm-button-inactive');
+      element.classList.add('tm-button-active');
+      element.addEventListener('click', () => {
+        this.claimEarlyBird();
       });
-
-      this.balance = res.Balance.Total;
-      this.createBalance();
-      this.createHorizontalLine();
-    }).catch(error => {
-      console.error('Error claiming airdrop:', error);
-    })
+    }
   }
 
-  public claimEarlyBird() {
-    earlyBirdApi.fetchData().then(res => {
-      console.log({res});
-    }).catch(error => {
-      console.error('Error claiming airdrop:', error);
-    })
-  }
-
-  private createBalance() {
+  private createBalance(balance: number) {
     this.dashboardElement = document.createElement('div');
-    this.dashboardElement.style.display = 'flex';
-    this.dashboardElement.style.flexDirection = 'column';
-    this.dashboardElement.style.alignItems = 'center';
-    this.dashboardElement.style.paddingLeft = '16px';
-    this.dashboardElement.style.paddingRight = '16px';
-    this.dashboardElement.style.paddingTop = '24px';
-    this.dashboardElement.style.paddingBottom = '24px';
+    this.setStyle(this.dashboardElement, {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '24px 16px'
+    });
 
-    const nameDiv = document.createElement('div');
-    nameDiv.style.width = '100%';
-
-    const nameText = document.createElement('p');
+    const nameDiv = this.createElementWithStyle('div', {width: '100%'});
     // @ts-ignore
-    nameText.textContent = 'Hi! ' + (window.Telegram.WebApp.initDataUnsafe.user.first_name || window.Telegram.WebApp.initDataUnsafe.user.user_name || 'Undefined');
-    nameText.style.fontSize = '20px'; // Set font size to 20
-    nameText.style.fontWeight = 'bold'; // Set font weight to bold
+    const nameText = this.createElementWithStyle('p', {fontSize: '20px', fontWeight: 'bold'}, 'Hi! ' + (window.Telegram.WebApp.initDataUnsafe.user.first_name || window.Telegram.WebApp.initDataUnsafe.user.user_name || 'Undefined'));
+    nameText.classList.add('tm-title');
     nameDiv.appendChild(nameText);
     this.dashboardElement.appendChild(nameDiv);
 
-    const rewardDiv = document.createElement('div');
-    rewardDiv.style.width = '100%';
-    rewardDiv.style.background = 'white';
-    rewardDiv.style.borderRadius = '8px';
-    rewardDiv.style.height = '130px';
-    rewardDiv.style.borderColor = '#F4F4F4';
-    rewardDiv.style.borderStyle = 'solid';
-    rewardDiv.style.borderWidth = '1px';
-    rewardDiv.style.display = 'flex';
-    rewardDiv.style.flexDirection = 'column';
-    rewardDiv.style.justifyContent = 'center';
-    rewardDiv.style.alignItems = 'center';
-    rewardDiv.style.padding = '16px';
+    const rewardDiv = this.createElementWithStyle('div', {
+      width: '100%',
+      background: 'white',
+      borderRadius: '8px',
+      height: '130px',
+      border: '1px solid #F4F4F4',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '16px'
+    });
 
-    const rewardFirstChildDiv = document.createElement('div');
-    rewardFirstChildDiv.style.width = '100%';
-
-    const rewardText = document.createElement('p');
-    rewardText.textContent = 'Rewards';
-    rewardText.style.margin = '0';
-    rewardText.style.marginBottom = '12px';
-    rewardText.style.fontSize = '18px';
-    rewardText.style.fontWeight = 'bold'; // Set font weight to bold
-    rewardFirstChildDiv.appendChild(rewardText);
-
+    const rewardFirstChildDiv = this.createElementWithStyle('div', {width: '100%'});
+    const rewardText = this.createElementWithStyle('p', {fontSize: '18px', fontWeight: 'bold'}, 'Rewards');
+    rewardText.classList.add('tm-title');
     rewardFirstChildDiv.appendChild(rewardText);
     rewardDiv.appendChild(rewardFirstChildDiv);
 
-    const rewardSecondChildDiv = document.createElement('div');
-    rewardSecondChildDiv.style.width = '100%';
-    rewardSecondChildDiv.style.background = '#ECF2F9';
-    rewardSecondChildDiv.style.height = '61px';
-    rewardSecondChildDiv.style.display = 'flex';
-    rewardSecondChildDiv.style.alignItems = 'center';
-    rewardSecondChildDiv.style.justifyContent= 'space-between';
-    rewardSecondChildDiv.style.borderRadius = '4px';
-    rewardSecondChildDiv.style.paddingTop = '20px';
-    rewardSecondChildDiv.style.paddingBottom = '20px';
-    rewardSecondChildDiv.style.paddingLeft = '12px';
-    rewardSecondChildDiv.style.paddingRight = '12px';
-    rewardSecondChildDiv.style.color = '#417FC6';
-    rewardSecondChildDiv.style.fontSize = '16px'; // Set font size to 16
-    rewardSecondChildDiv.style.fontWeight = 'bold'; // Set font weight to bold
+    const rewardSecondChildDiv = this.createElementWithStyle('div', {
+      width: '100%',
+      background: '#ECF2F9',
+      height: '61px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderRadius: '4px',
+      padding: '20px 12px',
+      color: '#417FC6',
+      fontSize: '16px',
+      fontWeight: 'bold'
+    });
 
-    // Wrapper with div
-    const wrapperDiv1 = document.createElement('div');
-    wrapperDiv1.style.display = 'flex';
-    wrapperDiv1.style.alignItems = 'center';
-    rewardSecondChildDiv.appendChild(wrapperDiv1);
+    const wrapperDiv1 = this.createElementWithStyle('div', {
+      display: 'flex',
+      alignItems: 'center'
+    });
+    const icon = this.createElementWithStyle('img', {
+      width: '24px',
+      height: '24px',
+      marginRight: '6px'
+    }) as HTMLImageElement;
+    icon.src = '/assets/img/mTon.png';
 
-    // Icon
-    const icon = document.createElement('img');
-    icon.src = '/public/assets/img/mTon.png';
-    icon.style.width = '24px';
-    icon.style.height = '24px';
-    icon.style.marginRight = '6px';
-    wrapperDiv1.appendChild(icon);
-
-    // Balance Text
     const balanceText = document.createElement('p');
     balanceText.textContent = 'Balance';
+    wrapperDiv1.appendChild(icon);
     wrapperDiv1.appendChild(balanceText);
+    rewardSecondChildDiv.appendChild(wrapperDiv1);
 
-    // Amount
-    // Wrapper with div
-    const wrapperDiv2 = document.createElement('div');
-    wrapperDiv2.style.display = 'flex';
-    wrapperDiv2.style.alignItems = 'center';
-    rewardSecondChildDiv.appendChild(wrapperDiv2);
-    // Amount
-    const amount = document.createElement('p');
-    amount.textContent = this.balance.toString();
-    amount.style.marginRight = '4px';
-    wrapperDiv2.appendChild(amount);
-    // Ticker
+    const wrapperDiv2 = this.createElementWithStyle('div', {
+      display: 'flex',
+      alignItems: 'center'
+    });
+    const amount = this.createElementWithStyle('p', {marginRight: '4px'}, balance.toString());
+    amount.id = 'tm-balance';
+
     const ticker = document.createElement('p');
     ticker.textContent = 'mTon';
+    wrapperDiv2.appendChild(amount);
     wrapperDiv2.appendChild(ticker);
+    rewardSecondChildDiv.appendChild(wrapperDiv2);
 
     rewardDiv.appendChild(rewardSecondChildDiv);
     this.dashboardElement.appendChild(rewardDiv);
@@ -162,51 +174,30 @@ export class AirdropDashBoard {
     this.dashboardLayer.appendChild(this.dashboardElement);
   }
 
-  private createHorizontalLine() {
-    // Horizontal Line
-    const horizontalLine = document.createElement('div');
-    horizontalLine.style.width = '100%';
-    horizontalLine.style.height = '2px';
-    horizontalLine.style.border = 'none';
-    horizontalLine.style.borderTop = '1px solid #F4F4F4';
-    this.dashboardLayer.appendChild(horizontalLine);
-  }
-
   private createEvent(EarlyBirdClaim = false, earlybirdPoints = 0) {
-    const eventDiv = document.createElement('div');
-    eventDiv.style.width = '100%';
-    eventDiv.style.display = 'flex';
-    eventDiv.style.flexDirection = 'column';
-    eventDiv.style.alignItems = 'center';
-    eventDiv.style.paddingTop = '24px';
-    eventDiv.style.paddingBottom = '24px';
-    eventDiv.style.paddingLeft = '16px';
-    eventDiv.style.paddingRight = '16px';
+    const eventDiv = this.createElementWithStyle('div', {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '24px 16px'
+    });
 
-    const eventText = document.createElement('p');
-    eventText.textContent = 'Early Bird Event';
-    eventText.style.width = '100%';
-    eventText.style.margin = '0';
-    eventText.style.marginBottom = '12px';
-    eventText.style.fontSize = '18px';
-    eventText.style.fontWeight = 'bold';
+    const eventText = this.createElementWithStyle('p', {
+      width: '100%',
+      fontSize: '18px',
+      fontWeight: 'bold'
+    }, 'Early Bird Event🐦');
+    eventText.classList.add('tm-title');
 
-    const claimText = document.createElement('div');
-    claimText.textContent = `Claim ${earlybirdPoints} mTon`;
-    claimText.style.width = '100%';
-    claimText.style.background = '#548DE6';
-    claimText.style.borderRadius = '4px';
-    claimText.style.padding = '8px 16px';
-    claimText.style.color = '#fff';
-    claimText.style.fontSize = '16px';
-    claimText.style.fontWeight = 'bold';
-    claimText.style.textAlign = 'center';
-
+    const claimText = this.createElementWithStyle('div', {width: '100%'});
+    claimText.id = 'tm-claim-btn';
     if(EarlyBirdClaim) {
-      claimText.style.background = '#D9D9D9';
-      claimText.style.color = '#B3B3B3';
       claimText.textContent = 'Claimed';
+      claimText.classList.add('tm-button-inactive');
     } else {
+      claimText.textContent = `Claim ${earlybirdPoints} mTon`;
+      claimText.classList.add('tm-button-active');
       claimText.addEventListener('click', () => {
         this.claimEarlyBird();
       });
@@ -214,8 +205,72 @@ export class AirdropDashBoard {
 
     eventDiv.appendChild(eventText);
     eventDiv.appendChild(claimText);
-
     this.dashboardLayer.appendChild(eventDiv);
+  }
+
+  private createInvitation() {
+    const invitationDiv = this.createElementWithStyle('div', {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '24px 16px'
+    });
+
+    const descriptionText = this.createElementWithStyle('p', {
+      width: '100%',
+      fontSize: '18px',
+      fontWeight: 'bold'
+    }, 'Invite Frens🎉');
+    descriptionText.classList.add('tm-title');
+
+    const copyLinkText = this.createElementWithStyle('div', {width: '49.5%'}, 'Copy link');
+    copyLinkText.classList.add('tm-button-active');
+    copyLinkText.addEventListener('click', () => {
+      // @ts-ignore
+      const link = `t.me/tele_gram_mini_bot?start=${window.Telegram.WebApp.initDataUnsafe.user.id}`;
+      navigator.clipboard.writeText(link).then(() => {
+        console.log('Link copied to clipboard:', link);
+      }).catch(error => {
+        console.error('Error copying link to clipboard:', error);
+      });
+    });
+
+    const sendLinkText = this.createElementWithStyle('div', {width: '49.5%'}, 'Send');
+    sendLinkText.classList.add('tm-button-active');
+    sendLinkText.addEventListener('click', () => {
+      // @ts-ignore
+      const link = `https://t.me/share/url?url=t.me/tele_gram_mini_bot?start=${window.Telegram.WebApp.initDataUnsafe.user.id}&text=random%text!`;
+      window.open(link);
+    });
+
+    const wrapperDiv = this.createElementWithStyle('div', {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%'
+    });
+    wrapperDiv.appendChild(copyLinkText);
+    wrapperDiv.appendChild(sendLinkText);
+
+    invitationDiv.appendChild(descriptionText);
+    invitationDiv.appendChild(wrapperDiv);
+    this.dashboardLayer.appendChild(invitationDiv);
+  }
+
+  private setStyle(element: HTMLElement, styles: { [key: string]: string }) {
+    for(const property in styles) {
+      element.style[property as any] = styles[property];
+    }
+  }
+
+  private createElementWithStyle(tag: string, styles: { [key: string]: string }, textContent?: string): HTMLElement {
+    const element = document.createElement(tag);
+    this.setStyle(element, styles);
+    if(textContent) {
+      element.textContent = textContent;
+    }
+    return element;
   }
 }
 
