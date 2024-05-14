@@ -244,7 +244,7 @@ export class AirdropDashBoard {
     copyLinkText.classList.add('tm-button-active');
     copyLinkText.addEventListener('click', () => {
       // @ts-ignore
-      const link = `t.me/tele_gram_mini_bot?start=${window.Telegram.WebApp.initDataUnsafe.user.id}`;
+      const link = `t.me/tele_gram_mini_bot/app?startapp=ref_${window.Telegram.WebApp.initDataUnsafe.user.id}`;
       navigator.clipboard.writeText(link).then(() => {
         console.log('Link copied to clipboard:', link);
       }).catch(error => {
@@ -256,7 +256,7 @@ export class AirdropDashBoard {
     sendLinkText.classList.add('tm-button-active');
     sendLinkText.addEventListener('click', () => {
       // @ts-ignore
-      const link = `https://t.me/share/url?url=t.me/tele_gram_mini_bot?start=${window.Telegram.WebApp.initDataUnsafe.user.id}&text=random%text!`;
+      const link = `https://t.me/share/url?url=t.me/tele_gram_mini_bot/app?startapp=ref_${window.Telegram.WebApp.initDataUnsafe.user.id}&text=random%text!`;
       window.open(link);
     });
 
