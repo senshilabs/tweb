@@ -7,20 +7,19 @@ class HmacEndPoint<T> {
     this.method = method;
   }
 
-  public getHMAC(isProd: boolean) {
-    if(!isProd) {
-      window.sessionStorage.setItem('__telegram__initParams', JSON.stringify({
-        tgWebAppData: 'query_id=AAGnipdpAAAAAKeKl2nDCOdC&user=%7B%22id%22%3A1771539111%2C%22first_name%22%3A%220xono%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22dev_ono%22%2C%22language_code%22%3A%22ko%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1715684033&hash=c20498254c26cc6eae671692bb52370ba88026cf512cb5d6c984688e91133aff'
+  public getHMAC() {
+    if(import.meta.env.DEV) {
+      window.sessionStorage.setItem(import.meta.env.VITE_TELEGRAM_SESSION_KEY, JSON.stringify({
+        tgWebAppData: import.meta.env.VITE_TELE_GRAM_APP_DATA
       }));
     }
-    // return JSON.parse(window.sessionStorage.getItem('__telegram__initParams'))['tgWebAppData'];
+
     // @ts-ignore
     return window.Telegram.WebApp.initData;
   }
 
   public fetchData(body?: any): Promise<T> {
-    const isProd = true;
-    const hmacToken = this.getHMAC(isProd);
+    const hmacToken = this.getHMAC();
 
     const fetchOptions: RequestInit = {
       method: this.method,
