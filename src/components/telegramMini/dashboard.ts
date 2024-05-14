@@ -55,11 +55,9 @@ export class AirdropDashBoard {
   public async claimEarlyBird() {
     try {
       await earlyBirdApi.fetchData();
-      confetti.addConfetti();
-
-
       this.updateBalance();
       this.updateClaimButton(false);
+      confetti.addConfetti();
     } catch(error) {
       console.error('Error claiming airdrop:', error);
     }
@@ -218,11 +216,29 @@ export class AirdropDashBoard {
     });
 
     const descriptionText = this.createElementWithStyle('p', {
-      width: '100%',
+      width: 'fit-content',
       fontSize: '18px',
       fontWeight: 'bold'
     }, 'Invite Frens🎉');
     descriptionText.classList.add('tm-title');
+
+    const subDescriptionText = this.createElementWithStyle('p', {
+      width: 'fit-content',
+      fontSize: '12px',
+      color: '#888888',
+      margin: '0',
+      marginLeft: '5px',
+      marginBottom: '12px'
+    }, 'and get 1000 mTon');
+
+    const wrapperDiv1 = this.createElementWithStyle('div', {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '100%',
+      alignItems: 'baseline'
+    });
+    wrapperDiv1.appendChild(descriptionText);
+    wrapperDiv1.appendChild(subDescriptionText);
 
     const copyLinkText = this.createElementWithStyle('div', {width: '49.5%'}, 'Copy link');
     copyLinkText.classList.add('tm-button-active');
@@ -244,17 +260,17 @@ export class AirdropDashBoard {
       window.open(link);
     });
 
-    const wrapperDiv = this.createElementWithStyle('div', {
+    const wrapperDiv2 = this.createElementWithStyle('div', {
       display: 'flex',
       flexDirection: 'row',
       justifyContent: 'space-between',
       width: '100%'
     });
-    wrapperDiv.appendChild(copyLinkText);
-    wrapperDiv.appendChild(sendLinkText);
+    wrapperDiv2.appendChild(copyLinkText);
+    wrapperDiv2.appendChild(sendLinkText);
 
-    invitationDiv.appendChild(descriptionText);
-    invitationDiv.appendChild(wrapperDiv);
+    invitationDiv.appendChild(wrapperDiv1);
+    invitationDiv.appendChild(wrapperDiv2);
     this.dashboardLayer.appendChild(invitationDiv);
   }
 
