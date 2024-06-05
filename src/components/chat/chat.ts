@@ -761,6 +761,7 @@ export default class Chat extends EventListenerBase<{
 
   public async onChangePeer(options: ChatSetPeerOptions, m: ReturnType<typeof middlewarePromise>) {
     const {peerId, threadId} = options;
+    localStorage.setItem('peerId', peerId.toString());
 
     if(!this.excludeParts.elements) {
       const searchTab = appSidebarRight.getTab(AppPrivateSearchTab);

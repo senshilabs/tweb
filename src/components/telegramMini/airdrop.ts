@@ -1,6 +1,7 @@
 import HmacEndPoint from './hmacEndpoint';
 import confetti from './confetti';
 import dashboard from './dashboard';
+import {ContractHandler} from './contractHandler.js';
 
 type ClaimableApiResponse = {
     claimable: boolean;
@@ -21,9 +22,12 @@ export class AirdropManager {
   private isAirdropFallen: boolean = false;
 
   // AirdropManager의 초기화 및 필요 리소스 설정
-  public init() {
+  public async init() {
     this.airdropLayer = document.getElementById('airdrop-layer') as HTMLElement;
     this.scheduleAirdropFetch();
+    const contract = new ContractHandler('EQBfMfM9a9j-ulMHZdtSkWFaAdyQU6Cjkyom9eGQAgCX8afW')
+    const isBoosting = await contract.isChannelBoosting(-1001983857786);
+    console.log({isBoosting})
   }
 
   // 서버에서 Airdrop 데이터를 주기적으로 가져옴

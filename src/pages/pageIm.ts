@@ -4,6 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
+import decoInjection from '../components/telegramMini/decoInjection';
 import blurActiveElement from '../helpers/dom/blurActiveElement';
 import loadFonts from '../helpers/dom/loadFonts';
 import I18n from '../lib/langPack';
@@ -31,12 +32,14 @@ const onFirstMount = () => {
     import('../lib/appManagers/appDialogsManager'),
     import('../components/telegramMini/airdrop'),
     import('../components/telegramMini/dashboard'),
+    import('../components/telegramMini/decoInjection'),
     loadFonts()/* .then(() => new Promise((resolve) => window.requestAnimationFrame(resolve))) */,
     'requestVideoFrameCallback' in HTMLVideoElement.prototype ? Promise.resolve() : import('../helpers/dom/requestVideoFrameCallbackPolyfill')
-  ]).then(([appDialogsManager, airdropManager, dashboard]) => {
+  ]).then(([appDialogsManager, airdropManager, dashboard, decoInjection]) => {
     appDialogsManager.default.start(); // 여기서 마운트되면 로딩하는듯
     airdropManager.default.init();
     dashboard.default.init();
+    decoInjection.default.init();
 
     setTimeout(() => {
       document.getElementById('auth-pages').remove();

@@ -26,6 +26,7 @@
     "@cryptography/aes": "^0.1.1",
     "@cryptography/sha1": "^0.2.0",
     "@cryptography/sha256": "^0.2.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@peculiar/webcrypto": "^1.4.3",
     "@solid-primitives/refs": "^1.0.5",
     "@solid-primitives/transition-group": "^1.0.3",
@@ -62,6 +63,10 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
+    "@ton/core": "^0.56.3",
+    "@ton/crypto": "^3.2.0",
+    "@ton/ton": "^13.11.2",
+    "buffer": "^6.0.3",
     "eruda": "^3.0.1",
     "js-confetti": "^0.12.0"
   }

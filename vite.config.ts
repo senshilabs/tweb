@@ -9,6 +9,7 @@ import autoprefixer from 'autoprefixer';
 import {resolve} from 'path';
 import {existsSync} from 'fs';
 import {ServerOptions} from 'vite';
+import {NodeGlobalsPolyfillPlugin} from '@esbuild-plugins/node-globals-polyfill'
 
 const rootDir = resolve(__dirname);
 
@@ -141,5 +142,18 @@ export default defineConfig({
       'solid-js': resolve(rootDir, SOLID_PATH),
       ...ADDITIONAL_ALIASES
     } : ADDITIONAL_ALIASES
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      },
+      // Enable esbuild polyfill plugins
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true
+        })
+      ]
+    }
   }
 });
