@@ -50,7 +50,7 @@ export class AirdropManager {
   private async onAirdropClick() {
     try {
       this.removeAirdropElement();
-      const telegram_channel_id = window.location.href.split('#')[1].split('_')[0];
+      const telegram_channel_id = Number(localStorage.getItem('peerId'));
       const body = {
         telegram_channel_id
       };
