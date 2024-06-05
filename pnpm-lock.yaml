@@ -45,9 +45,6 @@ importers:
       '@cryptography/sha256':
         specifier: ^0.2.0
         version: 0.2.0
-      '@esbuild-plugins/node-globals-polyfill':
-        specifier: ^0.2.3
-        version: 0.2.3(esbuild@0.20.2)
       '@peculiar/webcrypto':
         specifier: ^1.4.3
         version: 1.4.3
@@ -777,11 +774,6 @@ packages:
 
   '@cryptography/sha256@0.2.0':
     resolution: {integrity: sha512-BptcDkQWplfUjMJAxewmMN/O8JD19cwJM6XUFQrqaCDMYt5e40Czm4S7BEFc+PN7dElNH79ik687/5aMk4uDSQ==}
-
-  '@esbuild-plugins/node-globals-polyfill@0.2.3':
-    resolution: {integrity: sha512-r3MIryXDeXDOZh7ih1l/yE9ZLORCd5e8vWg02azWRGj5SPTuoh69A2AIyn0Z31V/kHBfZ4HgWJ+OK3GTTwLmnw==}
-    peerDependencies:
-      esbuild: '*'
 
   '@esbuild/aix-ppc64@0.20.2':
     resolution: {integrity: sha512-D+EBOJHXdNZcLJRBkhENNG8Wji2kgc9AZ9KiPr1JuZjsNtyHzrsfLRrY0tk2H2aoFu6RANO1y1iPPUCDYWkb5g==}
@@ -4219,10 +4211,6 @@ snapshots:
   '@cryptography/sha1@0.2.0': {}
 
   '@cryptography/sha256@0.2.0': {}
-
-  '@esbuild-plugins/node-globals-polyfill@0.2.3(esbuild@0.20.2)':
-    dependencies:
-      esbuild: 0.20.2
 
   '@esbuild/aix-ppc64@0.20.2':
     optional: true
