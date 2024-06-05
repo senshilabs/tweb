@@ -18,6 +18,7 @@ const claimApi = new HmacEndPoint<ClaimApiResponse>('/claim', 'POST');
 export class AirdropManager {
   private airdropLayer: HTMLElement;
   private airdropElement: HTMLElement;
+  private isAirdropFallen: boolean = false;
 
   // AirdropManager의 초기화 및 필요 리소스 설정
   public init() {
@@ -45,17 +46,25 @@ export class AirdropManager {
   private async onAirdropClick() {
     try {
       this.removeAirdropElement();
-      const res = await claimApi.fetchData();
+      const telegram_channel_id = window.location.href.split('#')[1].split('_')[0];
+      const body = {
+        telegram_channel_id
+      };
+      const res = await claimApi.fetchData(body);
       console.log('Airdrop successfully claimed!');
       confetti.addConfetti();
       await dashboard.updateBalance();
     } catch(error) {
+      this.removeAirdropElement();
       console.error('Error claiming airdrop:', error);
     }
   }
 
   // Airdrop UI 요소 생성 및 이벤트 핸들링
   private createAirdropElement() {
+    if(this.isAirdropFallen) {
+      return;
+    }
     this.airdropElement = document.createElement('div');
     this.airdropElement.classList.add('chute');
 
@@ -68,11 +77,13 @@ export class AirdropManager {
 
     this.animateAirdropElement(this.airdropElement);
     this.airdropLayer.appendChild(this.airdropElement);
+    this.isAirdropFallen = true;
   }
 
   private removeAirdropElement() {
     this.airdropElement.remove();
     this.airdropElement = null;
+    this.isAirdropFallen = false;
   }
 
   // Airdrop 애니메이션
@@ -115,7 +126,7 @@ export class AirdropManager {
 
     // 애니메이션 종료 시 요소 제거
     verticalAnimation.onfinish = () => {
-      el.remove();
+      this.removeAirdropElement();
     };
   }
 }
